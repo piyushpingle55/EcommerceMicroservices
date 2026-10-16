@@ -1,10 +1,12 @@
 <Solution>
   <Folder Name="/src/" />
-  <Folder Name="/src/GateWays/" />
+  <Folder Name="/src/GateWays/">
+    <Project Path="D:/System Design/EcommerceMicroservices/src/GateWays/API Gateway/API Gateway.csproj" Id="7fbee4a5-76cf-4470-a65f-0c5e5afd05c8" />
+  </Folder>
   <Folder Name="/src/Services/">
-    <Project Path="src/Services/AuthService/AuthService.csproj" />
-    <Project Path="src/Services/CartService/CartService.csproj" />
-    <Project Path="src/Services/PaymentService/PaymentService.csproj" />
-    <Project Path="src/Services/ProductService/ProductService.csproj" />
+    <Project Path="D:/System Design/EcommerceMicroservices/src/Services/AuthService/AuthService.csproj" />
+    <Project Path="D:/System Design/EcommerceMicroservices/src/Services/CartService/CartService.csproj" />
+    <Project Path="D:/System Design/EcommerceMicroservices/src/Services/PaymentService/PaymentService.csproj" />
+    <Project Path="D:/System Design/EcommerceMicroservices/src/Services/ProductService/ProductService.csproj" />
   </Folder>
 </Solution>
