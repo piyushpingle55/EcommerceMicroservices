@@ -1,0 +1,29 @@
+// Discover local Docker containers automatically
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+// Extract service_name from Docker labels (falls back to container name if label is missing)
+discovery.relabel "kanban_logs" {
+  targets = discovery.docker.containers.targets
+
+  // Map custom docker label "service_name" if present
+  rule {
+    source_labels = ["__meta_docker_container_label_service_name"]
+    regex         = "(.+)"
+    target_label  = "service_name"
+  }
+}
+
+// Tail container logs and send them to Loki
+loki.source.docker "default" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.kanban_logs.output
+  forward_to = [loki.write.endpoint.receiver]
+}
+
+loki.write "endpoint" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

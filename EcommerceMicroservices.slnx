@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path="config.alloy" />
     <File Path="docker-compose.yml" />
   </Folder>
   <Folder Name="/src/" />

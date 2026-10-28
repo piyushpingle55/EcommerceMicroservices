@@ -5,6 +5,7 @@ networks:
     driver: bridge
 
 services:
+  # 1. Log Storage Engine
   loki:
     image: grafana/loki:latest
     ports:
@@ -13,6 +14,7 @@ services:
     networks:
       - ecommerce-net
 
+  # 2. Visualization & Dashboards
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -24,3 +26,37 @@ services:
       - ecommerce-net
     depends_on:
       - loki
+
+  # 3. Production Log Collector (Scrapes container stdout)
+  alloy:
+    image: grafana/alloy:latest
+    volumes:
+      - ./config.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/tmp/alloy
+      - --server.http.listen-addr=0.0.0.0:12345
+    ports:
+      - "12345:12345"
+    networks:
+      - ecommerce-net
+    depends_on:
+      - loki
+
+  # 4. Your Microservice Running in Production Container Mode
+  product-service:
+    build:
+      context: ./src/Services/ProductService
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    labels:
+      - "service_name=ProductService"
+    networks:
+      - ecommerce-net
+    depends_on:
+      - alloy

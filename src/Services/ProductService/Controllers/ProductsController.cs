@@ -21,7 +21,7 @@ namespace ProductService.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            throw new InvalidOperationException("Simulated database failure for middleware testing!");
+            //throw new InvalidOperationException("Simulated database failure for middleware testing!");
             // Fetch list of products asynchronously with tracking disabled for high performance
             return await _context.Products.AsNoTracking().ToListAsync();
         }

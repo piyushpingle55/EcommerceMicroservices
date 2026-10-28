@@ -15,21 +15,15 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
 
-    #region  Configure Serilog to write to both Console and Loki
+    #region Production Standard: Read configuration from appsettings, enrich with context and environment
     builder.Host.UseSerilog((context, services, configuration) => configuration
-    .ReadFrom.Configuration(context.Configuration)
-    .ReadFrom.Services(services)
-    .Enrich.FromLogContext()
-    .Enrich.WithProperty("service_name", "ProductService")
-    .WriteTo.Console()
-    .WriteTo.GrafanaLoki(
-        "http://localhost:3100",
-        labels: new[]
-        {
-            new Serilog.Sinks.Grafana.Loki.LokiLabel { Key = "service_name", Value = "ProductService" },
-            new Serilog.Sinks.Grafana.Loki.LokiLabel { Key = "job", Value = "ProductService" }
-        },
-        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information));
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .Enrich.WithMachineName()
+        .Enrich.WithThreadId()
+        .Enrich.WithProperty("service_name", "ProductService")
+        .WriteTo.Console(new Serilog.Formatting.Json.JsonFormatter())); // Output raw JSON for the log agent to parse easily
     #endregion
 
 
