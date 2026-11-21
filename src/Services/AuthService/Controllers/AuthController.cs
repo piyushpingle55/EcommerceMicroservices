@@ -1,5 +1,6 @@
 ﻿using AuthService.Data;
 using AuthService.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -58,6 +59,38 @@ namespace AuthService.Controllers
             return Ok(new { token, email = user.Email, role = user.Role });
         }
 
+        [Authorize]
+        [HttpGet("me")] 
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            // 1. Extract User ID from JWT claims (ClaimTypes.NameIdentifier or "sub")
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                              ?? User.FindFirstValue("sub");
+
+            if (string.IsNullOrWhiteSpace(userIdClaim))
+            {
+                return Unauthorized(new { message = "User ID claim missing in token." });
+            }
+
+            // 2. Query the user from your Auth DbContext
+            // Adjust Id type (Guid vs int vs string) and property names to match your User entity
+            var user = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id.ToString() == userIdClaim);
+
+            if (user is null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            return Ok(new
+            {
+                userId = user.Id,
+                username = user.Username, 
+                email = user.Email,
+                role = user.Role
+            });
+        }
         private string GenerateJwtToken(User user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
